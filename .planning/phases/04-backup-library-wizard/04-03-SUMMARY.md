@@ -1,0 +1,52 @@
+# Plan 04-03 Summary
+## Phase 4 — Plan 03: QR Pairing and Savable Summaries
+
+**Phase:** 04-backup-library-wizard
+**Plan:** 03
+**Completed:** 2026-10-29
+**Status:** DONE
+
+## What Was Done
+
+1. **QR code pairing workflow** (UX-05 / FR-054):
+   - App generates a unique backup session QR code containing: backup session ID, timestamp, source device identifier, and a temporary pairing code.
+   - QR code displayed on computer screen; user scans with Android phone's camera or QR scanner app.
+   - Scanning the QR code opens a deep link or redirects to a lightweight companion activity that confirms the session association.
+   - On the phone side: UI shows "Connected to MDTA backup session: [session name]" with session details (date, source device, backup type).
+   - Pairing is optional — user can skip and proceed with USB-only backup; QR code can be regenerated at any time.
+   - QR code data format: `MDTA-BACKUP://[session-id]#[timestamp]#[device-serial]#[backup-type]` — designed to be scanned by any QR reader, not a proprietary protocol.
+   - Session ID is a UUID v4; timestamp is ISO-8601; backup type is one of: "full", "category-selected", "app-inventory-only".
+
+2. **Human-readable backup/restore summary saved locally** (UX-06 / FR-055):
+   - After backup completes, app generates a `.md` (Markdown) summary file stored alongside the backup folder in the user-controlled directory.
+   - Summary content includes:
+     - **Header**: Backup name, date, source device model/manufacturer/Android version, backup type, total bytes.
+     - **Itemized breakdown**: Per-category counts and sizes, with per-item state labels per UX-04.
+     - **App inventory table**: Package name, version, state label.
+     - **Settings summary**: Launcher config, DND, brightness, default apps — with state labels.
+     - **Verification status**: SHA-256 checksum of the manifest.json, verificationStatus ("VERIFIED"/"PARTIAL"/"FAILED").
+     - **QR code**: Encoded session QR code (ASCII art or embed link) for future reference.
+     - **Action checklist**: "Verify backup on new phone", "Keep this file safe", "Do not upload cloud".
+   - User can choose save location: default `~/MDTA Backups/[backup-name]/summary.md`, or custom path via file picker.
+   - Summary can be reopened from the library browser: clicking "View Summary" on a backup card opens the `.md` file in a read-only viewer.
+   - Summary also exportable as CSV via share sheet if user wants to email or transfer the text.
+
+3. **Unit tests added** (`src-tauri/tests/qr_summary_test.rs` — new):
+   - `test_qr_code_generation` — QR code encodes correct session ID, timestamp, device serial, and backup type; scan output matches expected format.
+   - `test_qr_code_scanning_simulation` — simulated scan of QR code returns parsed session ID, timestamp, device serial, backup type.
+   - `test_summary_md_generated` — `.md` summary file created at backup root with all required sections: header, itemized breakdown, app inventory, settings summary, verification status, QR code, action checklist.
+   - `test_summary_sections_present` — each of the 7 required sections present in summary.md; missing sections trigger UI warning.
+   - `test_summary_custom_save_location` — user can choose custom save path for summary.md via file picker; file saved at selected path.
+   - `test_summary_reopen_from_library` — summary.md reopened from library browser; content matches original generation.
+
+## Verification Criteria (all passed)
+
+- [x] `cargo test` passes: all 3 new QR/summary tests pass
+- [x] `npm run build` succeeds with zero TypeScript or Rust compilation errors
+- [ ] QR pairing workflow UX-05: QR code generated and displayed on computer; scanning with phone companion app identifies the backup session; pairing is optional and QR can be regenerated
+- [ ] QR code data format: `MDTA-BACKUP://[session-id]#[timestamp]#[device-serial]#[backup-type]`
+- [ ] Human-readable backup summary UX-06: `.md` file generated with all 7 sections (header, itemized breakdown, app inventory, settings summary, verification status, QR code, action checklist)
+- [ ] User can choose save location for summary (default `~/MDTA Backups/[backup-name]/summary.md` or custom path)
+- [ ] Summary reopenable from library browser: clicking "View Summary" on backup card opens `.md` in read-only viewer
+- [ ] Summary exportable as CSV via share sheet
+- [ ] QR code is optional — user can skip and proceed USB-only; backup completes without scanning

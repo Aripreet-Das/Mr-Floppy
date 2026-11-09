@@ -1,0 +1,309 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-deep: #05080a;
+  --bg-canvas: #060a0e;
+  --bg-card: rgba(10, 16, 22, 0.82);
+  --bg-card-solid: #0c1319;
+  --bg-node: rgba(12, 20, 27, 0.85);
+  --bg-node-hover: rgba(18, 30, 40, 0.95);
+  --bg-node-active: rgba(26, 36, 46, 0.95);
+
+  --border-glass: rgba(255, 255, 255, 0.07);
+  --border-glass-bright: rgba(255, 255, 255, 0.14);
+  --border-teal: rgba(45, 212, 191, 0.35);
+  --border-gold: rgba(251, 191, 36, 0.55);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #54657a;
+  --text-dim: #334155;
+
+  --accent-teal: #2dd4bf;
+  --accent-cyan: #38bdf8;
+  --accent-gold: #fbbf24;
+  --accent-amber: #f59e0b;
+  --accent-emerald: #10b981;
+  --accent-coral: #fb7185;
+
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Background Atmosphere Glow (Matching Inspiration Screenshot) */
+.canvas-atmosphere {
+  background: 
+    radial-gradient(circle at 18% 50%, rgba(30, 58, 70, 0.35) 0%, rgba(10, 20, 28, 0.1) 45%, transparent 65%),
+    radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.05) 0%, transparent 55%),
+    radial-gradient(circle at 85% 30%, rgba(45, 212, 191, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.03) 0%, transparent 40%),
+    linear-gradient(180deg, #06090d 0%, #040709 100%);
+}
+
+/* Glassmorphism Cards */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.glass-node {
+  background: var(--bg-node);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-node:hover {
+  background: var(--bg-node-hover);
+  border-color: var(--border-glass-bright);
+  transform: translateX(3px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-node.active-gold {
+  border-color: rgba(245, 158, 11, 0.65);
+  background: linear-gradient(135deg, rgba(32, 26, 15, 0.85) 0%, rgba(20, 18, 12, 0.9) 100%);
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.2), inset 0 1px 0 rgba(251, 191, 36, 0.35);
+}
+
+.glass-node.active-teal {
+  border-color: rgba(45, 212, 191, 0.65);
+  background: linear-gradient(135deg, rgba(14, 34, 36, 0.85) 0%, rgba(10, 22, 26, 0.9) 100%);
+  box-shadow: 0 0 24px rgba(45, 212, 191, 0.2), inset 0 1px 0 rgba(45, 212, 191, 0.35);
+}
+
+/* Organic Node Fiber Connections (SVG) */
+.fiber-line {
+  fill: none;
+  stroke: rgba(45, 212, 191, 0.22);
+  stroke-width: 1.25;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.fiber-line.active {
+  stroke: url(#goldGradient);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 7px rgba(245, 158, 11, 0.45));
+}
+
+.fiber-line.streaming {
+  stroke: url(#tealGradient);
+  stroke-width: 2.2;
+  stroke-dasharray: 6 4;
+  animation: fiber-stream 1.2s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(45, 212, 191, 0.5));
+}
+
+@keyframes fiber-stream {
+  from {
+    stroke-dashoffset: 20;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Core Phone Luminous Orb Animation */
+@keyframes orb-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 
+      0 0 35px rgba(168, 85, 247, 0.3),
+      0 0 70px rgba(45, 212, 191, 0.25),
+      inset 0 0 20px rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 
+      0 0 50px rgba(168, 85, 247, 0.45),
+      0 0 95px rgba(45, 212, 191, 0.35),
+      inset 0 0 30px rgba(255, 255, 255, 0.6);
+  }
+}
+
+.phone-orb {
+  animation: orb-pulse 4.5s ease-in-out infinite;
+}
+
+@keyframes particle-orbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.particle-ring {
+  animation: particle-orbit 28s linear infinite;
+}
+
+/* Monospace data numbers */
+.num-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* Dot-matrix Equalizer Bars */
+.dot-matrix-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  transition: all 0.25s ease;
+}
+
+/* Custom Mac-style thin scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Window drag region */
+[data-tauri-drag-region] {
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+
+button, a, input, [role="button"], .interactive-node {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
+}
+
+/* ── Animation Registry ── */
+
+/* Node glow breathe */
+@keyframes node-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+    border-color: rgba(245, 158, 11, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(245, 158, 11, 0.65);
+    border-color: rgba(251, 191, 36, 0.95);
+  }
+}
+
+/* Phone orb float (subtle vertical drift) */
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.02); }
+}
+
+/* Progress sweep */
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Category node staggered entrance */
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Shimmer across active panels */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); opacity: 0.4; }
+  40% { transform: translateX(100%); opacity: 0.85; }
+  100% { transform: translateX(100%); opacity: 0.4; }
+}
+
+/* Dot-matrix random twinkle (idle state) */
+@keyframes dot-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.35); }
+}
+
+.node-glow {
+  animation: node-glow 3s ease-in-out infinite;
+}
+
+.orb-float {
+  animation: orb-float 5s ease-in-out infinite;
+}
+
+.progress-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.progress-sweep::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; bottom: 0; width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  animation: sweep 2.5s ease-in-out infinite;
+}
+
+.category-enter {
+  animation: fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.panel-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.panel-shimmer::after {
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(245, 158, 11, 0.12) 35%,
+    rgba(251, 191, 36, 0.06) 50%,
+    transparent 65%
+  );
+  transform: rotate(28deg);
+  animation: shimmer 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.dot-twinkle {
+  animation: dot-twinkle 2.2s ease-in-out infinite;
+}
+
+

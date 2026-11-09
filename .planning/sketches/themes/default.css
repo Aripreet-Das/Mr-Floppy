@@ -1,0 +1,38 @@
+:root {
+  /* Night-bench palette: obsidian glass + amber LED */
+  --color-bg: #05080a;
+  --color-surface: #0d1117;
+  --color-surface-2: #131a21;
+  --color-border: #1c2630;
+  --color-text: #e8e4da;
+  --color-text-muted: #8a93a0;
+  --color-primary: #2dd4bf;
+  --color-accent: #fbbf24;
+  --color-accent-hot: #f59e0b;
+  --color-danger: #f87171;
+  --color-success: #34d399;
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+}

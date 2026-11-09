@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sketch 002 — Phone Browser Page</title>
+<link rel="stylesheet" href="../themes/default.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 24px 96px;
+    background: radial-gradient(1200px 800px at 50% -200px, #101720, #070a0d);
+    font-family: var(--font-sans); color: var(--color-text);
+  }
+  header.top { max-width: 1200px; margin: 0 auto 20px; }
+  h1 { font-size: var(--text-lg); margin: 0; font-weight: 700; }
+  .sub { color: var(--color-text-muted); font-size: var(--text-sm); margin-top: 4px; }
+  .note { color: var(--color-text-muted); font-size: 12px; margin-top: 2px; font-family: var(--font-mono); }
+  .state-row { max-width: 1200px; margin: 0 auto 18px; display: flex; gap: 10px; align-items: center; }
+  .state-btn { font: 12px var(--font-mono); cursor: pointer; padding: 7px 16px; border-radius: var(--radius-full); border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-muted); transition: all .15s ease; }
+  .state-btn:hover { border-color: var(--color-accent); color: var(--color-text); }
+  .state-btn.active { background: var(--color-accent); border-color: var(--color-accent); color: #100c02; font-weight: 700; }
+  .grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  @media (max-width: 900px){ .grid { grid-template-columns: 1fr; max-width: 420px; } }
+  .cell h3 { font-size: 13px; margin: 0 0 10px; font-weight: 700; }
+  .cell h3 span { color: var(--color-text-muted); font-weight: 500; }
+
+  .phone { width: 375px; height: 720px; margin: 0 auto; border-radius: 44px; border: 1px solid #232a31; background: #000; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+  .screen { height: 100%; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+  .notch { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 90px; height: 22px; border-radius: 12px; background: #000; z-index: 5; border: 1px solid #1a1f24; }
+
+  /* ============ Variant A: LED cockpit ============ */
+  .cockpit { background: var(--color-bg); color: var(--color-text); padding: 54px 22px 20px; display: flex; flex-direction: column; height: 100%; }
+  .brand { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; letter-spacing: 1.5px; color: var(--color-text-muted); }
+  .brand .live { color: var(--color-success); }
+  .bigpct { font-family: var(--font-mono); font-weight: 700; font-size: 88px; line-height: 1; color: var(--color-accent); font-variant-numeric: tabular-nums; margin: 26px 0 4px; letter-spacing: -2px; }
+  .bigpct small { font-size: 34px; color: var(--color-text-muted); letter-spacing: 0; }
+  .rail { height: 4px; border-radius: 4px; background: #17202a; overflow: hidden; margin-top: 14px; }
+  .rail i { display: block; height: 100%; background: var(--color-accent); border-radius: 4px; transition: width .3s cubic-bezier(.22,1,.36,1); }
+  .eq { display: flex; gap: 5px; margin: 30px 0; height: 64px; align-items: center; }
+  .eq .col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .eq .d { width: 100%; height: 6px; border-radius: 2px; background: #17202a; transition: background .12s; }
+  .eq .d.on { background: var(--color-accent); box-shadow: none; }
+  .ticker { font-family: var(--font-mono); font-size: 13px; color: var(--color-text-muted); overflow: hidden; height: 20px; position: relative; }
+  .ticker span { display: block; position: absolute; white-space: nowrap; animation: slide .5s ease; }
+  @keyframes slide { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .foot { margin-top: auto; display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-muted); }
+  .foot b { color: var(--color-text); font-weight: 600; }
+  .cockpit .pausedline { color: var(--color-accent-hot); font-family: var(--font-mono); font-size: 13px; }
+  .cockpit .confirmed { color: var(--color-success); font-family: var(--font-mono); font-size: 20px; letter-spacing: -.3px; }
+
+  /* ============ Variant B: paper brutalist ============ */
+  .paper { background: #f4f1ea; color: #17140f; padding: 54px 22px 20px; display: flex; flex-direction: column; height: 100%; }
+  .paper .rule { border-top: 2px solid #17140f; margin: 12px 0; }
+  .paper .brand { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; display: flex; justify-content: space-between; }
+  .paper .bignum { font-family: var(--font-mono); font-weight: 800; font-size: 120px; line-height: .9; letter-spacing: -5px; margin: 18px 0 0; font-variant-numeric: tabular-nums; }
+  .paper .bignum small { font-size: 40px; }
+  .paper .railb { height: 18px; border: 2px solid #17140f; margin-top: 18px; background: repeating-linear-gradient(90deg, #17140f 0 8px, transparent 8px 16px); }
+  .paper .railb i { display: block; height: 100%; background: #d97706; transition: width .3s; }
+  .paper .labels { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; margin-top: 8px; }
+  .paper .matrix { display: grid; grid-template-columns: repeat(24, 1fr); gap: 4px; margin: 28px 0; }
+  .paper .matrix .m { width: 100%; aspect-ratio: 1; border-radius: 50%; background: #d9d3c4; }
+  .paper .matrix .m.on { background: #17140f; }
+  .paper .fileline { font-family: var(--font-mono); font-size: 12.5px; color: #4c463b; min-height: 18px; }
+  .paper .footb { margin-top: auto; font-family: var(--font-mono); font-size: 12px; display: flex; justify-content: space-between; border-top: 2px solid #17140f; padding-top: 12px; }
+
+  #sketch-tools { position: fixed; bottom: 12px; right: 12px; z-index: 9999; font-family: system-ui; font-size: 12px; background: rgba(0,0,0,.7); color: white; padding: 8px 12px; border-radius: 8px; opacity: .4; transition: opacity .2s; display: flex; gap: 10px; align-items: center; }
+  #sketch-tools:hover { opacity: 1; }
+  #sketch-tools select { font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Sketch 002 — the browser page (if funk needs a canvas)</h1>
+  <p class="sub">Served by the Mac over the cable (adb reverse). Full freedom — but the phone must stay unlocked with the page open. This is the opt-in "show me" mode.</p>
+  <p class="note">Both variants live-tick here so you feel the motion; numbers are real-ish (43% · 2,132/4,900 · 18.6/42.1 GB).</p>
+</header>
+
+<div class="state-row">
+  <button class="state-btn active" data-state="streaming" id="sb-streaming" onclick="setState('streaming')">Streaming</button>
+  <button class="state-btn" data-state="paused" id="sb-paused" onclick="setState('paused')">Paused</button>
+  <button class="state-btn" data-state="done" id="sb-done" onclick="setState('done')">Done</button>
+</div>
+
+<div class="grid">
+
+  <div class="cell">
+    <h3>A · <span>LED cockpit — obsidian glass, amber LED, desktop mascot energy</span></h3>
+    <div class="phone"><div class="screen cockpit">
+      <div class="notch"></div>
+      <div class="brand"><span>MR. FLOPPY</span><span class="live" id="a-live">● STREAMING · USB</span></div>
+      <div class="bigpct"><span id="a-pct">43</span><small>%</small></div>
+      <div class="rail"><i id="a-rail" style="width:43%"></i></div>
+      <div class="eq" id="a-eq"></div>
+      <div class="ticker" id="a-ticker"><span>▸ IMG_20260114_0912.jpg</span></div>
+      <div class="foot">
+        <span><b id="a-files">2,132</b> / 4,900 files</span>
+        <span><b id="a-gb">18.6</b> / 42.1 GB</span>
+        <span><b id="a-time">2:14</b> in</span>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="cell">
+    <h3>B · <span>Paper brutalist — ink on warm paper, giant figures</span></h3>
+    <div class="phone"><div class="screen paper">
+      <div class="notch"></div>
+      <div class="brand"><span>FLOPPY™</span><span id="b-live">● STREAMING</span></div>
+      <div class="rule"></div>
+      <div class="bignum"><span id="b-pct">43</span><small>%</small></div>
+      <div class="railb"><i id="b-rail" style="width:43%"></i></div>
+      <div class="labels"><span id="b-files">2,132 files</span><span id="b-gb">18.6 / 42.1 GB</span></div>
+      <div class="matrix" id="b-matrix"></div>
+      <div class="fileline" id="b-file">▸ IMG_20260114_0912.jpg</div>
+      <div class="footb"><span>BUILT TO SURVIVE THE TRADE-IN</span><span id="b-time">14:02</span></div>
+    </div></div>
+  </div>
+
+</div>
+
+<script>
+const FILELIST = [
+  'IMG_20260114_0912.jpg', 'IMG_20260120_festival.jpg', 'VID_20260211_1443.mp4',
+  'Sketchbook_page22.pdf', 'Rec_20260228_note.m4a', 'Screenshot_0311_2214.png',
+  'DCIM/Album_20260305.tar', 'Invoice_batch_Mar.pdf', 'IMG_20260319_sunset.jpg', 'mixtape_side_b.mp3'
+];
+const EQ_COLS = 22, EQ_ROWS = 5;
+let state = 'streaming', pct = 43, files = 2132, gb = 18.6, fileIdx = 0, elapsed = 2 * 3600 + 131 * 60;
+let ticker, eqTimer, tickTimer, matrixTimer;
+
+function fmt(n){ return n.toLocaleString(); }
+function fmtTime(s){ const mm = Math.floor(s/60), h = Math.floor(mm/60); return h + ':' + String(mm%60).padStart(2,'0'); }
+
+// build equalizers
+const aEq = document.getElementById('a-eq');
+for (let c = 0; c < EQ_COLS; c++){
+  const col = document.createElement('div'); col.className = 'col';
+  for (let r = 0; r < EQ_ROWS; r++){ const d = document.createElement('div'); d.className = 'd'; col.appendChild(d); }
+  aEq.appendChild(col);
+}
+const bMatrix = document.getElementById('b-matrix');
+for (let i = 0; i < 24 * 3; i++){ const d = document.createElement('div'); d.className = 'm'; bMatrix.appendChild(d); }
+
+function dance(){
+  document.querySelectorAll('#a-eq .col').forEach(col => {
+    const dots = col.querySelectorAll('.d');
+    const lit = state === 'streaming' ? 1 + Math.floor(Math.random() * EQ_ROWS) : (state === 'done' ? EQ_ROWS : Math.floor(EQ_ROWS/2));
+    dots.forEach((d, i) => d.classList.toggle('on', i < lit));
+  });
+  document.querySelectorAll('#b-matrix .m').forEach(d => d.classList.toggle('on', Math.random() * (state==='streaming'?1:0.15) < 0.35));
+}
+function tickFile(){
+  fileIdx = (fileIdx + 1) % FILELIST.length;
+  const t = state === 'streaming' ? '▸ ' + FILELIST[fileIdx] : (state === 'paused' ? '▮ HOLDING — don\'t close me' : '✓ manifest.json — 4,900 checks green');
+  const aT = document.querySelector('#a-ticker'); aT.innerHTML = '';
+  const s = document.createElement('span'); s.textContent = t; aT.appendChild(s);
+  document.getElementById('b-file').textContent = t;
+}
+function tick(){
+  if (state === 'streaming'){
+    pct = Math.min(100, pct + Math.random() * 0.05);
+    files = Math.min(4900, files + (Math.random() < .7 ? 1 : 2));
+    gb = pct / 100 * 42.1; elapsed += 2;
+  }
+  const p = Math.round(pct);
+  ['a-pct','b-pct'].forEach(id => document.getElementById(id).textContent = p);
+  document.getElementById('a-rail').style.width = p + '%';
+  document.getElementById('b-rail').style.width = p + '%';
+  document.getElementById('a-files').textContent = fmt(files);
+  document.getElementById('b-files').textContent = fmt(files) + ' files';
+  document.getElementById('a-gb').textContent = gb.toFixed(1);
+  document.getElementById('b-gb').textContent = gb.toFixed(1) + ' / 42.1 GB';
+  document.getElementById('b-time').textContent = fmtTime(elapsed);
+}
+tickTimer = setInterval(tick, 250);
+eqTimer = setInterval(dance, 130);
+ticker = setInterval(tickFile, 1600);
+setState('streaming');
+dance(); tickFile();
+
+function setState(s){
+  state = s;
+  ['streaming','paused','done'].forEach(k =>
+    document.getElementById('sb-' + k).classList.toggle('active', k === s));
+  const liveA = document.getElementById('a-live'), liveB = document.getElementById('b-live');
+  if (s === 'streaming'){ liveA.textContent = '● STREAMING · USB'; liveA.style.color = 'var(--color-success)';
+    liveB.textContent = '● STREAMING'; liveB.style.color = '#17140f'; }
+  if (s === 'paused'){ liveA.textContent = '● HOLDING'; liveA.style.color = 'var(--color-accent-hot)';
+    liveB.textContent = '● HOLDING'; liveB.style.color = '#d97706'; tickFile(); }
+  if (s === 'done'){ liveA.textContent = '● VERIFIED ✓'; liveA.style.color = 'var(--color-success)';
+    liveB.textContent = '● VERIFIED ✓'; pct = 100; files = 4900; gb = 42.1; tickFile(); }
+}
+</script>
+
+<div id="sketch-tools">
+  <span>theme</span>
+  <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'">
+    <option value="default">night-bench</option>
+  </select>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+# Plan 02 Summary
+## Phase 3 — Plan 02: Manifest Generation and Verified Backup State
+
+**Phase:** 03-backup-core-engine
+**Plan:** 02
+**Completed:** 2026-10-29
+**Status:** DONE
+
+## What Was Done
+
+1. **Structured manifest.json generation** — new file created at the root of each backup folder:
+   - `manifest.json` with fields: `version`, `sourceDevice`, `sourceModel`, `sourceManufacturer`, `sourceAndroidVersion`, `sourceSDK`, `backupDate`, `categories`, `totalBytes`, `verificationStatus`
+   - Per-item entries: `path` (relative to backup root), `originalPath` (on device), `sizeBytes`, `checksumSHA256`, `status` (OK/MISSING/CORRUPT/UNAVAILABLE), `timestampCopied`, `timestampVerified`
+   - Overall metadata: `verifiedAt`, `verificationMode` (full/incremental), `appVersion`
+
+2. **Manifest population pipeline** (after chunked file pull completes):
+   - For each file pulled: compute SHA-256 (same streaming method as pull), store in manifest entry
+   - For each file: record `sizeBytes` from `adb shell du -b` or Rust `metadata.len()`, `timestampCopied` from SystemTime, `status` = OK if SHA-256 matches expected, CORRUPT if mismatch, MISSING if file not pulled, UNAVAILABLE if read error
+   - `totalBytes` = sum of all item `sizeBytes`
+   - `categories` = array of category strings selected by user (Photos, Videos, Audio, Documents, Downloads)
+   - `verificationStatus` = "VERIFIED" if all items OK, "PARTIAL" if some CORRUPT/MISSING, "FAILED" if any UNAVAILABLE
+
+3. **Manifest validation on startup**:
+   - On app launch, scan backup folder for `manifest.json`
+   - Validate schema: required fields present, checksums hex-encoded 64-char strings, sizes non-negative, timestamps valid
+   - Report integrity issues in UI: "Backup from [date] — verification needed" badge
+   - Offer "Re-verify" action that re-computes SHA-256 for all items and updates manifest
+
+4. **Backup state persistence** across Tauri sessions:
+   - `manifest.json` stored alongside backed-up files in user-controlled backup directory
+   - On `"device-poll"` reconnect, app checks for existing backup manifest and offers "Resume backup" or "Start new backup"
+   - Manifest used to determine which categories were already completed, which chunks remain
+
+5. **Frontend manifest browser** (`src/components/ManifestBrowser.tsx` — new):
+   - Tree view of backup folder with per-item status badges
+   - Summary stats: "Verified: X of Y items", "Size: Z GB of W GB"
+   - "Re-verify" button for individual items or entire backup
+   - Export manifest as JSON/CSV
+
+6. **Unit tests added** (`src-tauri/tests/manifest_test.rs` — new):
+   - `test_manifest_schema_validation` — valid manifest passes schema check, invalid manifest (missing fields, bad checksum format) rejected
+   - `test_manifest_population_after_pull` — manifest populated correctly after chunked pull with known file contents
+   - `test_manifest_resume_awareness` — app detects existing manifest on reconnect and offers resume
+
+## Verification Criteria (all passed)
+
+- [x] `cargo test` passes: all 3 new manifest tests pass
+- [x] `npm run build` succeeds with zero TypeScript or Rust compilation errors
+- [x] `manifest.json` generated at backup root contains all required fields: `version`, `sourceDevice`, `sourceModel`, `sourceManufacturer`, `sourceAndroidVersion`, `sourceSDK`, `backupDate`, `categories`, `totalBytes`, `verificationStatus`, plus per-item entries with `path`, `sizeBytes`, `checksumSHA256`, `status`, `timestampCopied`
+- [x] Manifest schema validation: wrong checksum format (not 64 hex chars) rejected on load; missing required fields trigger error UI
+- [x] `verificationStatus` correctly computed: "VERIFIED" when all items OK, "PARTIAL" when some CORRUPT/MISSING, "FAILED" when any UNAVAILABLE
+- [x] "Re-verify" action recomputes SHA-256 for all items and updates `verificationStatus` correctly
+- [x] Existing manifest detected on reconnect; "Resume backup" offer works when backup was interrupted
+- [x] Total bytes in manifest = sum of all item sizes (within 1% tolerance)
