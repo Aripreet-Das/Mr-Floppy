@@ -24,7 +24,8 @@ Built as a local-first, privacy-preserving migration tool. Nothing leaves your m
 
 > Working build shown below — backup in progress at 100% with live ADB stream, file inspector, and SHA-256 integrity check.
 
-![Mr. Floppy working screenshot — backup at 100%](docs/screenshots/mr-floppy-working.png)
+<img width="1132" height="832" alt="image" src="https://github.com/user-attachments/assets/2534b34c-f3fd-4ae2-bfa7-a96a8c38ed1f" />
+
 
 > **Note:** Add this image to the repo at `docs/screenshots/mr-floppy-working.png` (the image you shared) so it renders here.
 
